@@ -54,4 +54,6 @@ dkms.conf
 # debug information files
 *.dwo
 
+# Ignorar arquivos de texto
+test-files/
 *.txt

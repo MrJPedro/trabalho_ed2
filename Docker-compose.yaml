@@ -1,0 +1,6 @@
+services:
+  mycontainer:
+    image: gcc:latest
+    build: .
+    volumes:
+      - './test-files:/test-files'

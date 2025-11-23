@@ -1,2 +1,6 @@
-.gitignore
-*.md
+# Ignorar todos os arquivos ocultos
+.*
+
+# Ignorar arquivos de texto (redundante, eu sei)
+test-files/
+*.txt
