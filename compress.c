@@ -20,7 +20,8 @@ void count_frequencies(const char *file_path, int frequencies[256])
     while ((ch = fgetc(file)) != EOF)
     {
         if (ch > 255){
-            perror("Caractere %c não suportado.", ch);
+            perror("Caractere não suportado:");
+            printf("    %c\n", ch);
             exit(EXIT_FAILURE);
         }
         frequencies[ch]++;
