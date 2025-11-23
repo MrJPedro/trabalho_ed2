@@ -109,3 +109,5 @@ domínio sobre a solução desenvolvida.
 | **Defesa Oral e Modificação (15 pts)** | Demonstra domínio completo do sistema integrado. Justifica as decisões de design do índice e é capaz de debater trade-offs. Realiza alterações complexas na lógica de busca. | Explica bem o sistema, mas não consegue justificar profundamente as escolhas de design. Realiza alterações com ajuda. | Explicação superficial. Consegue apenas descrever o que o código faz, sem explicar o "porquê". | Não demonstra ter autoria sobre o projeto. |
 
 #### Testing push JP
+
+# TESTE
