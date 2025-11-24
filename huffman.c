@@ -12,9 +12,17 @@ HuffmanNode *newNode(char data, unsigned freq)
     return temp;
 }
 
+   int isLeaf(struct HuffmanNode* node) {
+        return !(node->left) && !(node->right);
+   }
+
+
 HuffmanNode *build_huffman_tree(char data[], int freq[], int size)
 {
     printf("Construindo a árvore de Huffman...\n");
+
+
+
     return newNode(data[0], freq[0]);
 }
 
