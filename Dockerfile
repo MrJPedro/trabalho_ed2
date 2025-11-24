@@ -6,4 +6,4 @@ WORKDIR /projeto/codigo-fonte
 
 #RUN ["gcc", "-o", "/projeto/projeto-compilado", "main.c", "compress.c", "compressed_search.c", "huffman.c", "search.c"]
 
-WORKDIR /
+WORKDIR /projeto
