@@ -1,9 +1,9 @@
 FROM gcc:latest
 
-COPY . /codigo-fonte
+COPY . /projeto/codigo-fonte
 
-WORKDIR /codigo-fonte
+WORKDIR /projeto/codigo-fonte
 
-RUN ["gcc", "-o", "/projeto-compilado", "main.c", "compress.c", "compressed_search.c", "huffman.c", "search.c"]
+#RUN ["gcc", "-o", "/projeto/projeto-compilado", "main.c", "compress.c", "compressed_search.c", "huffman.c", "search.c"]
 
 WORKDIR /
