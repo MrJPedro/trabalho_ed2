@@ -4,102 +4,84 @@
 #include <string.h>
 #include <stdint.h>
 
-// Fills lps[] for given pattern pat
-void computeLPSArray(const char* pat, int M, int* lps){
-    // Length of the previous longest prefix suffix
+void kmp_compute_lps(const char *pat, int m, int *lps) {
     int len = 0;
-
-    // lps[0] is always 0
     lps[0] = 0;
-
-    // Loop calculates lps[i] for i = 1 to M-1
-    int i = 1;
-    while (i < M) {
-        if (pat[i] == pat[len]) {     // abab   lps[2]=1 lps[3]=2
-            len++;
-            lps[i] = len;
-            i++;
-        }
-        else {
-            if (len != 0) {
-                len = lps[len - 1];
-            }
-            else {
-                lps[i] = 0;
-                i++;
-            }
+    for (int i = 1; i < m;) {
+        if (pat[i] == pat[len]) {
+            lps[i++] = ++len;
+        } else if (len != 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
         }
     }
 }
 
-// Prints occurrences of pat in txt and returns an array of
-// occurrences
-int* search_file(const char* pattern, const char* file_path, int* count){
+int search_file(const char *file_path, const char *pattern) {
+    FILE *fp = fopen(file_path, "rb");
+    if (!fp) {
+        perror("Erro abrindo arquivo para busca");
+        return -1;
+    }
 
-    printf("Função de busca chamada para o arquivo: %s com o padrão: %s\n", file_path, pattern);
+    int m = (int)strlen(pattern);
+    if (m == 0) {
+        printf("Padrao vazio nao e suportado\n");
+        fclose(fp);
+        return 0;
+    }
+    int *lps = (int *)malloc(sizeof(int) * m);
+    if (!lps) {
+        fclose(fp);
+        return -1;
+    }
+    kmp_compute_lps(pattern, m, lps);
 
-    int M = strlen(pattern);
-    int N = strlen(file_path);
+    const size_t chunk = 4096;
+    size_t overlap = (m > 0) ? (size_t)(m - 1) : 0;
+    uint8_t *buf = (uint8_t *)malloc(chunk + overlap);
+    if (!buf) {
+        free(lps);
+        fclose(fp);
+        return -1;
+    }
 
-    // Create lps[] that will hold the longest prefix suffix
-    // values for pattern
-    int* lps = (int*)malloc(M * sizeof(int));
+    size_t total_read = 0;
+    size_t carry = 0;
+    int count = 0;
+    int j = 0;
 
-    // Preprocess the pattern (calculate lps[] array)
-    computeLPSArray(pattern, M, lps);                   // abab   lps[2]=1 lps[3]=2
+    while (1) {
+        size_t readn = fread(buf + carry, 1, chunk, fp);
+        size_t window = carry + readn;
+        uint64_t base_offset = (uint64_t)(total_read >= carry ? (total_read - carry) : 0);
+        if (window == 0) break;
 
-    int* result = (int*)malloc(N * sizeof(int));
-
-    // Number of occurrences found
-    *count = 0;
-
-    int i = 0; // index for txt
-    int j = 0; // index for pat
-  
-    while ((N - i) >= (M - j)) {
-        if (pattern[j] == file_path[i]) {
-            j++;
-            i++;
-        }
-
-        if (j == M) {
-
-            // Record the occurrence (1-based index)
-            result[*count] = i - j + 1;
-            (*count)++;
-            j = lps[j - 1];
-        }
-        else if (i < N && pattern[j] != file_path[i]) {
-            if (j != 0) {
+        size_t i = 0;
+        while (i < window) {
+            while (j > 0 && (j >= m || pattern[j] != buf[i])) {
                 j = lps[j - 1];
             }
-            else {
-                i = i + 1;
+            if (pattern[j] == buf[i]) j++;
+            if (j == m) {
+                uint64_t pos = base_offset + i + 1 - m; // zero-based
+                printf("Encontrado em offset %llu\n", (unsigned long long)pos);
+                count++;
+                j = lps[j - 1];
             }
+            i++;
         }
+
+        total_read += readn;
+        if (readn < chunk) break;
+        size_t keep = overlap < window ? overlap : window;
+        memmove(buf, buf + window - keep, keep);
+        carry = keep;
     }
+
+    free(buf);
     free(lps);
-    return result;
-}
-
-int main(){
-    const char txt[] = "geeksforgeeks";
-    const char pat[] = "geeks";
-    int count;
-
-    // Call KMPSearch and get the array of occurrences
-    int* result = KMPSearch(pat, txt, &count);
-
-    // Print all the occurrences (1-based indices)
-    for (int i = 0; i < count; i++) {
-       printf("Pattern found at index: %d ", result[i]);
-       printf("\n");
-  
-    }
-    printf("\n");
-
-    // Free the allocated memory
-    free(result);
-
-    return 0;
+    fclose(fp);
+    return count;
 }
